@@ -84,3 +84,25 @@ CREATE TABLE curriculum.offerings (
 	FOREIGN KEY (location_id) REFERENCES courses.locations (location_id) ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (course_id) REFERENCES curriculum.subjects (course_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+-- define a table for student attendance to capture attendance by class
+CREATE TABLE courses.attendance (
+	attendance_id INT IDENTITY (1, 1) PRIMARY KEY,
+	registration_id INT NOT NULL,
+	attendance_date DATE NOT NULL,
+	attendance_status tinyint NOT NULL,
+	-- Attendance status: 1 = Absent; 2 = Present; 3 = Excused; 4 = Tardy
+	FOREIGN KEY (registration_id) REFERENCES courses.registrations (registration_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+--define a stored procedure to get course enrollment by location
+CREATE PROCEDURE courses.get_course_enrollment_by_location
+	@location_id INT
+AS
+BEGIN
+	SELECT c.course_id, c.product_name, o.quantity
+	FROM curriculum.subjects c
+	JOIN curriculum.offerings o ON c.course_id = o.course_id
+	WHERE o.location_id = @location_id;
+END;
